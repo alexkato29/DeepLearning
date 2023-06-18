@@ -20,7 +20,10 @@ class Sigmoid():
         Sigmoid of X matrix
 
         Parameters:
-        - x ((n, p) matrix): Matrix to apply sigmoid to
+        - X (matrix): Matrix to apply sigmoid to
+
+        Returns:
+        - A (matrix): Matrix with sigmoid funciton applied elementwise
         """
         t = np.exp((-1 * self.factor) * X)
         return np.reciprocal(1 + t)

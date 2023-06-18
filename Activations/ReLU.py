@@ -17,7 +17,10 @@ class Relu():
         ReLU of X matrix
 
         Parameters:
-        - x ((n, p) matrix): Matrix to apply ReLU to
+        - X (matrix): Matrix to apply ReLU to
+
+        Returns:
+        - A (matrix): Matrix with ReLU function applied elementwise
         """
         return np.maximum(0, X)
     
