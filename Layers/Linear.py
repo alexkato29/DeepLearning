@@ -24,9 +24,10 @@ class Linear():
 
         # Weight matrix
         # Weight vectors are the cols of the matrix, and the output will be of form XW for input X
-        W = np.random.uniform(-1, 1, size=(self.n_inputs, self.n_outputs))
-        zeros = np.zeros((1, self.n_outputs))
-        self.W = np.vstack((zeros, W))
+        self.W = np.random.uniform(-1, 1, size=(self.n_inputs, self.n_outputs))
+
+        # Bias vector. Row vector since it will be added to observations, which are rows
+        self.bias = np.zeros((1, self.n_outputs))
 
         # Activation
         self.activation = activation
@@ -45,19 +46,27 @@ class Linear():
         if X.shape[1] != (self.n_inputs):
             raise ValueError(f"Invalid layer input dimensions.")
         
-        # Add a bias neuron
-        ones = np.ones((X.shape[0], 1))
-        X = np.hstack((ones, X))
+        # Store X for backprop
+        self.X = X
 
         # Forward Propagate, store the results for use later
-        self.Z = X @ self.W
+        self.Z = (X @ self.W) + self.bias
         self.A = self.activation.forward(self.Z)
 
         return self.A
 
 
-    def backward(self, X, y):
-        pass
+    def backward(self, grad):
+        grad_bwa = []  # Three gradients: wrt b, W, A, respectively
+
+        # Get the gradient PRE activation, dC/dZ
+        # This also happens to be the gradient wrt the bias 
+        grad = self.activation.backward(grad, self.Z)
+        grad_bwa.append(grad)
+
+        grad = grad.T
+
+        return grad_bwa
     
 
     def __str__(self):

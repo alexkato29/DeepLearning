@@ -16,21 +16,6 @@ class MiniBatchGD():
         self.batch_size = batch_size
         self.lr = lr
         self.schedule = schedule
-        self.gradients = []
-
-
-    def reset_gradients(self):
-        self.gradients = []
-
-
-    def fit(self, nn, X, y):
-        for epoch in range(self.epochs):
-            np.random.shuffle(X)
-            batches = [X[i:i+self.batch_size] for i in range(0, X.shape[0], self.batch_size)]
-            for batch in batches:
-                # Update gradients
-                # Take a step in direction for each gradient
-                pass                
 
 
     def step(self, X, y, epochs, verbose, batch_size, eta):

@@ -29,8 +29,14 @@ class Sigmoid():
         return np.reciprocal(1 + t)
     
 
-    def backward(self):
-        pass
+    def backward(self, grad, Z):
+        n = Z.shape[0]
+        sig = self.forward(Z)
+
+        # sig(Z) * (1 - sig(Z)) * grad
+        sigprime = np.multiply(sig, (np.ones((n,1)) - sig))
+
+        return np.multiply(grad, sigprime)
     
     
     def __str__(self):

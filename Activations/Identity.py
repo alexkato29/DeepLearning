@@ -25,8 +25,19 @@ class Identity():
         return X
     
 
-    def backward(self):
-        pass
+    def backward(self, grad, Z):
+        """
+        Converts gradient to be pre-activation
+
+        Parameters:
+        - grad (vector): Vector of partial derivatives of cost wrt outputs of this layer POST activation
+
+        Returns:
+        - grad (vector): Vector of partial derivatives of cost wrt outputs of this layer PRE activation
+        """
+
+        # No activation, so the gradient already is the "pre" activation derivative
+        return grad
     
     
     def __str__(self):
