@@ -5,15 +5,13 @@ class NeuralNetwork():
     """
     A simple feed-forward network architecture
     """
-    def __init__(self, layers, criterion, optimizer):
+    def __init__(self, layers, criterion):
         # Initialize the layers and get a reverse layer list for backprop
         self.layers = layers
         self.n_layers = len(self.layers)
 
-        # Initialize the loss function and optimizer
+        # Initialize the loss function
         self.criterion = criterion
-        self.optimizer = optimizer
-
     
     def predict(self, X):
         """
@@ -41,7 +39,7 @@ class NeuralNetwork():
         return(X)
     
 
-    def fit(self, X, y, batch_size=30, epochs=1000, verbose=False):
+    def fit(self, X, y, batch_size=30, epochs=1000, lr=0.05, verbose=False, show_grad=False):
         """
         Fit the network on the given data. Uses BatchGD only for now, will need to change this in a future version.
 
@@ -53,7 +51,7 @@ class NeuralNetwork():
         """
         n = X.shape[0]
 
-        for epoch in range(epochs):
+        for epoch in range(epochs + 1):
 
             # Randomly shuffle the indices
             rand_indices = np.random.permutation(X.shape[0])
@@ -66,21 +64,36 @@ class NeuralNetwork():
 
             # Retrain for each batch
             for i in range(0, len(X_batches)):
+                # Reset the gradient list
+                self.grad_W = [np.zeros(layer.W.shape) for layer in reversed(self.layers)]
+                self.grad_b = [np.zeros(layer.b.shape) for layer in reversed(self.layers)]
+
+                for j in range(0, len(X_batches[i])):
+                    # Get the jth observation in the mini batch
+                    jth_obs = np.array([X_batches[i][j]])
+                    jth_target = np.array([y_batches[i][j]])
                 
-                # Update layer outputs
-                y_pred = self.forward(X_batches[i])
+                    # Update layer outputs
+                    y_pred = self.forward(jth_obs)
 
-                # Update gradients
-                self.backward(y_batches[i], y_pred)
+                    # Update gradients
+                    self.backward(jth_target, y_pred)
 
-                # Send gradients to the optimizer for usage
-                # self.optimizer.step(self.gradients)
+                for index, layer in enumerate(reversed(self.layers)):
+                    # Update the layers
+                    layer.update(self.grad_b[index], self.grad_W[index], lr)
+
+                if show_grad:
+                    print("Bias Gradients: ")
+                    print(self.grad_b)
+                    print("Weight Jacobians: ")
+                    print(self.grad_W)
 
             # Print information if verbose
             if verbose and epoch % 10 == 0:
                 y_pred = self.predict(X_shuffled)
                 loss = self.criterion.loss(y_shuffled, y_pred)
-                print(f"Epoch [{epoch+1}/{epochs}], Loss: {loss:.4f}")
+                print(f"Epoch [{epoch}/{epochs}], Loss: {loss:.4f}")
                  
     
 
@@ -93,18 +106,19 @@ class NeuralNetwork():
         - y_actual (vector): actual values of the target
         """
 
-        # BE MINDFUL THAT YPRED IS POTENTIALLY  A MATRIX
         # You must compute gradients for each observation, then average them
-
-        # Reset the gradient list
-        self.gradients = []
 
         # Compute the start gradient from the loss function
         grad = self.criterion.backward(y_actual, y_pred)
 
-        for layer in reversed(self.layers):
-            grad = layer.backward(grad)
-            self.gradients.append(grad)
+        for index, layer in enumerate(reversed(self.layers)):
+            # Compute the gradients 
+            grads = layer.backward(grad)
+
+            # Update them here
+            self.grad_b[index] += grads[0]
+            self.grad_W[index] += grads[1]
+            grad = grads[2]
         
 
 
@@ -116,3 +130,13 @@ class NeuralNetwork():
         - n (int): Index of the layer to be returned (starting at 0)
         """
         return self.layers[n]
+    
+
+    def show(self, detailed=False):
+        for layer in self.layers:
+            print(layer)
+            if detailed:
+                print("Weights (column corresponds to output neuron): ")
+                print(layer.W)
+                print("Biases: ")
+                print(layer.b)

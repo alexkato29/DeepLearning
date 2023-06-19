@@ -25,7 +25,7 @@ class Identity():
         return X
     
 
-    def backward(self, grad, Z):
+    def backward(self, grad, Z, A):
         """
         Converts gradient to be pre-activation
 

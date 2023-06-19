@@ -29,12 +29,13 @@ class Sigmoid():
         return np.reciprocal(1 + t)
     
 
-    def backward(self, grad, Z):
-        n = Z.shape[0]
-        sig = self.forward(Z)
+    def backward(self, grad, Z, A):
+        n = Z.shape[1]
+        sig = A
 
         # sig(Z) * (1 - sig(Z)) * grad
-        sigprime = np.multiply(sig, (np.ones((n,1)) - sig))
+        # sig(Z) = A
+        sigprime = np.multiply(A, (np.ones((n,1)) - A))
 
         return np.multiply(grad, sigprime)
     

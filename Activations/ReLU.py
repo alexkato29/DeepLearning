@@ -25,7 +25,7 @@ class Relu():
         return np.maximum(0, X)
     
 
-    def backward(self, grad, Z):
+    def backward(self, grad, Z, A):
         """
         Converts gradient to be pre-activation
 
@@ -37,7 +37,7 @@ class Relu():
         """
 
         # Piecewise. <= 0, then the deriv is 0. Otherwise, it's 1
-        derivs = np.where(Z <= 0, 0, 1)
+        derivs = np.where(A == 0, 0, 1)
         grad = np.multiply(grad, derivs)
         
         return grad

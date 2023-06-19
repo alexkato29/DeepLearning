@@ -24,10 +24,10 @@ class Linear():
 
         # Weight matrix
         # Weight vectors are the cols of the matrix, and the output will be of form XW for input X
-        self.W = np.random.uniform(-1, 1, size=(self.n_inputs, self.n_outputs))
+        self.W = np.random.uniform(-0.5, 0.5, size=(self.n_inputs, self.n_outputs))
 
         # Bias vector. Row vector since it will be added to observations, which are rows
-        self.bias = np.zeros((1, self.n_outputs))
+        self.b = np.zeros((1, self.n_outputs))
 
         # Activation
         self.activation = activation
@@ -50,7 +50,7 @@ class Linear():
         self.X = X
 
         # Forward Propagate, store the results for use later
-        self.Z = (X @ self.W) + self.bias
+        self.Z = (X @ self.W) + self.b
         self.A = self.activation.forward(self.Z)
 
         return self.A
@@ -61,12 +61,31 @@ class Linear():
 
         # Get the gradient PRE activation, dC/dZ
         # This also happens to be the gradient wrt the bias 
-        grad = self.activation.backward(grad, self.Z)
-        grad_bwa.append(grad)
+        grad = self.activation.backward(grad, self.Z, self.A)
+        grad_b = grad
+        grad_bwa.append(grad_b)
 
-        grad = grad.T
+        # Get gradient of C wrt W
+        grad_W = self.X.T @ grad
+        grad_bwa.append(grad_W)
+
+        # Get gradient of C wrt A
+        grad_A = np.sum((self.W @ grad.T), axis=0)
+        grad_bwa.append(grad_A) 
 
         return grad_bwa
+    
+
+    def update(self, db, dW, lr):
+        """
+        Update the weights and biases of the layer.
+
+        Parameters:
+        - db (vector): Gradient vector of outputs wrt biases
+        - dW (matrix): Jacobian matrix of outputs wrt weights
+        """
+        self.b = self.b - (lr * db)
+        self.W = self.W - (lr * dW)
     
 
     def __str__(self):

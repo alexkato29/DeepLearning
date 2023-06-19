@@ -1,17 +1,18 @@
+import numpy as np
+
 class MSE():
     def __init__(self):
         pass
 
 
     def loss(self, y_true, y_pred):
-        diff = y_true - y_pred
-        m = y_true.shape[0]
+        resid = y_true - y_pred
+        sq_resid = np.square(resid)
+        ssr = np.sum(sq_resid)
+        size = y_true.shape[0] * y_true.shape[1]
 
-        return (1/m) * (diff.T @ diff)[0,0]
+        return (1/size) * ssr
     
 
     def backward(self, y_true, y_pred):
-        m = y_true.shape[0]
-        diff = y_true - y_pred
-
-        return (-2/m) * diff
+        return -2 * (y_true - y_pred)
