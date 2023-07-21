@@ -1,17 +1,14 @@
 import numpy as np
 
 class Linear():
-    """
-    Fully connected layer defined by an affine transformation W
-    """
-
-    def __init__(self, layer_size, activation):
+    def __init__(self, layer_size, activation, dropout=0.9):
         """
-        Initialize a fully-connected layer
+        Initialize a fully-connected layer defined by an affine transformation W
 
         Parameters:
         - layer_size (tuple (# inputs, # outputs)): Number of inputs and outputs of this layer
         - activation (class): Activation object to be used for this particular layer
+        - dropout (float): Dropoout proportion for this layer
         """
 
         # Number of inputs and outputs
@@ -22,15 +19,18 @@ class Linear():
         self.n_outputs = n_outputs
         self.n_weights = (n_inputs + 1) * n_outputs
 
-        # Weight matrix
+        # Weight matrix w/ He initialization
         # Weight vectors are the cols of the matrix, and the output will be of form XW for input X
-        self.W = np.random.uniform(-0.5, 0.5, size=(self.n_inputs, self.n_outputs))
+        self.W = np.random.randn(n_inputs, n_outputs) * np.sqrt(2./n_inputs)
 
         # Bias vector. Row vector since it will be added to observations, which are rows
         self.b = np.zeros((1, self.n_outputs))
 
         # Activation
         self.activation = activation
+
+        # Dropout
+        self.dropout = dropout
 
 
     def forward(self, X):
@@ -52,6 +52,10 @@ class Linear():
         # Forward Propagate, store the results for use later
         self.Z = (X @ self.W) + self.b
         self.A = self.activation.forward(self.Z)
+
+        # Apply dropout
+        d = np.random.binomial(1, self.dropout, self.n_outputs).T
+        self.A = self.A * d / self.dropout
 
         return self.A
 

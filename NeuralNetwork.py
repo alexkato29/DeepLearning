@@ -90,7 +90,7 @@ class NeuralNetwork():
                     print(self.grad_W)
 
             # Print information if verbose
-            if verbose and epoch % 10 == 0:
+            if verbose and epoch % 20 == 0:
                 y_pred = self.predict(X_shuffled)
                 loss = self.criterion.loss(y_shuffled, y_pred)
                 print(f"Epoch [{epoch}/{epochs}], Loss: {loss:.4f}")
